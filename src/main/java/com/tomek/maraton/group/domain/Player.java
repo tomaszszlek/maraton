@@ -1,11 +1,20 @@
 package com.tomek.maraton.group.domain;
 
-import lombok.Getter;
-import lombok.Value;
+import lombok.*;
 
-@Value
+@AllArgsConstructor
+@Getter
+@Builder
 public class Player {
-    PlayerId playerId;
-    int noOfGroupSwitches;
-    String currentDistance;
+    private final PlayerId playerId;
+    private int noOfGroupSwitches = 0;
+    private String currentDistance;
+
+    public void increaseSwitchesNumber() {
+        noOfGroupSwitches++;
+    }
+
+    public void setDistance(String newDistance) {
+        this.currentDistance = newDistance;
+    }
 }

@@ -2,6 +2,8 @@ package com.tomek.maraton.commons.events;
 
 import com.tomek.maraton.group.domain.Player;
 import com.tomek.maraton.group.domain.PlayerId;
+import com.tomek.maraton.group.domain.RaceGroup;
+import com.tomek.maraton.group.domain.RaceGroupId;
 import lombok.Getter;
 import lombok.NonNull;
 import lombok.Value;
@@ -18,9 +20,12 @@ public class PlayerAddedToRaceGroup implements MaratonEvent {
     PlayerId playerId;
 
     @NonNull
-    Integer raceGroupId;
+    RaceGroupId raceGroupId;
 
-    public static PlayerAddedToRaceGroup of(PlayerId playerId, Integer raceGroupId) {
-        return new PlayerAddedToRaceGroup(playerId, raceGroupId);
+    @NonNull
+    String distance;
+
+    public static PlayerAddedToRaceGroup of(PlayerId playerId, RaceGroupId raceGroupId, String distance) {
+        return new PlayerAddedToRaceGroup(playerId, raceGroupId, distance);
     }
 }

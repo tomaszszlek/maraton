@@ -2,47 +2,62 @@ package com.tomek.maraton.group.domain;
 
 import com.tomek.maraton.commons.Result;
 import com.tomek.maraton.commons.events.PlayerAddedToRaceGroup;
-import lombok.AccessLevel;
-import lombok.AllArgsConstructor;
-import lombok.NonNull;
+import lombok.*;
 
 import java.time.LocalDateTime;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
 
 @AllArgsConstructor(access = AccessLevel.PACKAGE)
-class RaceGroup {
+@Value
+@Builder
+public class RaceGroup {
 
     @NonNull
-    private final Integer raceId;
+    RaceGroupId raceGroupId;
 
     @NonNull
-    private final String distance;
+    String distance;
 
     @NonNull
-    private final LocalDateTime switchGroupDeadline;
+    LocalDateTime joinGroupDeadline;
 
     @NonNull
-    private final int maxCapacity;
+    int maxCapacity;
 
     @NonNull
-    private final List<PlayerId> members;
+    Members members = new Members();
 
-    public Result join(Player player) {
-        if (switchGroupDeadline.isAfter(LocalDateTime.now())) {
-            return Result.failure("Cannot join group after deadline: " + switchGroupDeadline);
+    public Result join(PlayerId player) {
+        if (joinGroupDeadline.isBefore(LocalDateTime.now())) {
+            return Result.failure("Cannot join group after deadline: " + joinGroupDeadline);
         }
         if (members.size() >= maxCapacity) {
             return Result.failure("Group has already max number of members");
         }
-        if (player.getNoOfGroupSwitches() > 0) {
-            return Result.failure("Player switched groups too many times already");
-        }
-        if (!Objects.equals(player.getCurrentDistance(), this.distance)) {
-            return Result.failure("Player cannot swap between distances");
+
+        members.add(player);
+        return Result.success(PlayerAddedToRaceGroup.of(player, raceGroupId, distance));
+    }
+
+    @Value
+    private static class Members {
+        List<PlayerId> members = new ArrayList<>();
+
+        public boolean isMember(PlayerId playerId) {
+            return members.stream().anyMatch(player ->
+                    Objects.equals(playerId, player));
         }
 
-        members.add(player.getPlayerId());
-        return Result.success(PlayerAddedToRaceGroup.of(player.getPlayerId(), raceId));
+        public int size() {
+            return members.size();
+        }
+
+        public void add(PlayerId playerId) {
+            members.add(playerId);
+        }
+
     }
+
 }
